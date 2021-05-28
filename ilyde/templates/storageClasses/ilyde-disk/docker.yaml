@@ -1,0 +1,9 @@
+{{- if eq .Values.cluster.provider "docker" }}
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: {{ .Values.storageClass.name }}
+
+provisioner: docker.io/hostpath
+volumeBindingMode: Immediate
+{{- end }}

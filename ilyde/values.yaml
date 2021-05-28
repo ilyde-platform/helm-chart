@@ -1,0 +1,322 @@
+serviceAccount:
+  name: ilyde
+storageClass:
+  name: ilyde-disk
+
+cluster:
+  provider: aws # can be minikube, docker, aws, gce, azure
+
+traefik:
+  enabled: true
+  image:
+    name: traefik
+    tag: 2.3.1
+    pullPolicy: IfNotPresent
+
+  ingressRoute:
+    dashboard:
+      enabled: false
+  
+  providers:
+    kubernetesCRD:
+      enabled: true
+    kubernetesIngress:
+      enabled: false
+
+  service:
+    enabled: true
+    type: NodePort
+
+  logs:
+    access:
+      enabled: true
+
+  ports:
+    traefik:
+      port: 8080
+      expose: false
+      exposedPort: 8080
+      protocol: TCP
+    
+    web:
+      nodePort: 30080
+      # redirectTo: websecure
+    websecure:
+      nodePort: 30443
+  
+  additionalArguments:
+    - "--api.insecure"
+    - "--entryPoints.web.forwardedHeaders.insecure"
+    - "--entryPoints.web.proxyProtocol.insecure"
+  
+  nodeSelector:
+    platform.ilyde.it/instancegroup: platform
+
+minio:
+  enabled: true
+  image:
+    repository: minio/minio
+    tag: RELEASE.2020-10-18T21-54-12Z
+
+  mode: distributed
+  replicas: 4
+  drivesPerNode: 1
+  persistence:
+    size: 2Gi
+    storageClass: ilyde-disk
+
+  resources:
+    requests:
+      memory: 100Mi
+
+  environment:
+    MINIO_BROWSER: off
+
+  accessKey: AKIAIOSFODNN89YHANG
+  secretKey: wJalrXUtnFEMI/K7MDENG/bPxRfiCYhdg35TwxzY
+
+  defaultBucket:
+    enabled: true
+    name:	3d653c4393554362bad85cdac1b47ef8
+  
+  nodeSelector:
+    platform.ilyde.it/instancegroup: platform
+
+mongodb:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: bitnami/mongodb
+    tag: 4.4.1-debian-10-r39
+    pullPolicy: IfNotPresent
+    debug: false
+
+  architecture: replicaset
+  initdbScriptsConfigMap: ilyde-init-db
+  auth:
+    enabled: true
+    rootPassword: UI3bGIzGbY
+    replicaSetKey: rs0key
+
+  persistence:
+    enabled: true
+    storageClass: "ilyde-disk"
+    accessModes:
+      - ReadWriteOnce
+    
+    size: 2Gi
+    annotations: {}
+    mountPath: /bitnami/mongodb
+    subPath: ""
+  
+  nodeSelector:
+    platform.ilyde.it/instancegroup: platform
+
+etcd:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: bitnami/etcd
+    tag: 3.4.14
+    pullPolicy: IfNotPresent
+    debug: false
+
+  allowNoneAuthentication: true
+  auth:
+    rbac:
+      enabled: false
+  
+  persistence:
+    enabled: false
+  
+  nodeSelector:
+    platform.ilyde.it/instancegroup: platform
+    
+elasticsearch:
+  enabled: true
+  image: docker.elastic.co/elasticsearch/elasticsearch
+  imageTag: 7.10.1
+  antiAffinity: "soft"
+  # JVM heap.
+  esJavaOpts: "-Xmx1024m -Xms1024m"
+  # Allocate chunks of memory per pod.
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "2048M"
+    limits:
+      cpu: "1000m"
+      memory: "2048M"
+
+  # persistent volumes.
+  volumeClaimTemplate:
+    accessModes: [ "ReadWriteOnce" ]
+    storageClassName: "ilyde-disk"
+    resources:
+      requests:
+        storage: 2Gi
+  
+  nodeSelector:
+    platform.ilyde.it/instancegroup: platform
+
+fluentd:
+  enabled: true
+  env:
+    - name: FLUENTD_SYSTEMD_CONF
+      value: "disable"
+    - name: FLUENT_ELASTICSEARCH_HOST
+      value: "elasticsearch-master"
+    - name: FLUENT_ELASTICSEARCH_PORT
+      value: "9200"
+    - name: FLUENT_ELASTICSEARCH_BUFFER_CHUNK_LIMIT_SIZE
+      value: "16M"
+  
+  nodeSelector:
+    platform.ilyde.it/instancegroup: platform
+
+postgresql:
+  enabled: true
+  postgresqlDatabase: keydb
+  postgresqlUsername: keycloak
+  postgresqlPassword: Pa55w0rd
+  existingSecretKey: "postgresql-password"
+  persistence:
+    enabled: true
+    storageClass: ilyde-disk
+    accessModes:
+      - ReadWriteOnce
+    size: 2Gi
+
+  master:
+    podAnnotations:
+      cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+  
+  nodeSelector:
+    platform.ilyde.it/instancegroup: platform
+  
+mysql:
+  enabled: true
+  auth:
+    database: mldb
+    username: marcom
+    password: springiscoming
+    rootPassword: bashkirbara
+  
+  primary:
+    persistence:
+      enabled: true
+      storageClass: ilyde-disk
+      accessModes:
+        - ReadWriteOnce
+      size: 2Gi
+
+  nodeSelector:
+    platform.ilyde.it/instancegroup: platform
+
+keycloak:
+  image:
+    repository: ilyde/keycloak
+    pullPolicy: IfNotPresent
+    tag: "11.0.2-rc3"
+  
+  ingress:
+    route: PathPrefix(`/auth`)
+  
+  serviceAccount:
+    name: ilyde
+  
+  env: 
+    KEYCLOAK_PASSWORD: Pa55w0rd
+    KEYCLOAK_USER: admin
+  
+  nodeSelector:
+    platform.ilyde.it/instancegroup: platform
+
+kubespawner:
+  image:
+    repository: ilyde/kubespawner
+    pullPolicy: IfNotPresent
+    tag: "1.0.0-rc1"
+  
+  serviceAccount:
+    name: ilyde
+  
+  env:
+    - name: CLUSTER_ENVIRONMENT
+      value: "internal"
+  
+  nodeSelector:
+    platform.ilyde.it/instancegroup: platform
+
+datasets:
+  image:
+    repository: ilyde/datasets
+    pullPolicy: IfNotPresent
+    tag: "1.0.0-rc2"
+  
+  serviceAccount:
+    name: ilyde
+  
+  nodeSelector:
+    platform.ilyde.it/instancegroup: platform
+
+projects:
+  image:
+    repository: ilyde/projects
+    pullPolicy: IfNotPresent
+    tag: "1.0.0-rc1"
+  
+  serviceAccount:
+    name: ilyde
+
+  nodeSelector:
+    platform.ilyde.it/instancegroup: platform
+
+mlflow:
+  image:
+    repository: ilyde/mlflow
+    pullPolicy: IfNotPresent
+    tag: "1.12.1"
+
+  serviceAccount:
+    name: ilyde
+
+  nodeSelector:
+    platform.ilyde.it/instancegroup: platform
+
+jobs:
+  image: 
+    tag: "1.0.0-rc6"
+    repository: ilyde/jobs
+    pullPolicy: IfNotPresent
+  
+  serviceAccount:
+    name: ilyde
+  
+  nodeSelector:
+    platform.ilyde.it/instancegroup: platform
+  
+apis:
+  image: 
+    tag: "1.0.0-rc5"
+    repository: ilyde/apis
+    pullPolicy: IfNotPresent
+
+  serviceAccount:
+    name: ilyde
+
+  nodeSelector:
+    platform.ilyde.it/instancegroup: platform
+
+
+webui:
+  image: 
+    tag: "1.0.0-rc4"
+    repository: ilyde/ui
+    pullPolicy: IfNotPresent
+
+  serviceAccount:
+    name: ilyde
+
+  nodeSelector:
+    platform.ilyde.it/instancegroup: platform

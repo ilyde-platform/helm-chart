@@ -1,0 +1,9 @@
+apiVersion: v2
+name: mlflow
+description: A Helm chart for mlflow
+type: application
+version: 0.1.2
+appVersion: 1.12.1
+
+    
+

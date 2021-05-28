@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "apis.fullname" . }}
+  labels:
+    {{- include "apis.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: 1
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "apis.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "apis.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-minio
+                  key: accesskey
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-minio
+                  key: secretkey
+            - name: MINIO_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-cfgs
+                  key: MINIO_HOST
+            - name: MINIO_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-cfgs
+                  key: MINIO_ENDPOINT
+            - name: JOBS_SERVICES_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-cfgs
+                  key: JOBS_SERVICES_ENDPOINT
+            - name: PROJECTS_SERVICES_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-cfgs
+                  key: PROJECTS_SERVICES_ENDPOINT
+            - name: DATASETS_SERVICES_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-cfgs
+                  key: DATASETS_SERVICES_ENDPOINT
+            - name: ELASTICSEARCH_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-cfgs
+                  key: ELASTICSEARCH_HOST
+            - name: ETCD_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-cfgs
+                  key: ETCD_HOST
+            - name: MLFLOW_TRACKING_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-cfgs
+                  key: MLFLOW_TRACKING_URI
+            - name: MLFLOW_S3_ENDPOINT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-cfgs
+                  key: MLFLOW_S3_ENDPOINT_URL
+          {{- if .Values.envFrom }}
+          envFrom:
+            {{- toYaml .Values.envFrom | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

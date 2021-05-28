@@ -1,0 +1,6 @@
+apiVersion: v2
+name: datasets
+description: A Helm chart for datasets services component
+type: application
+version: 0.1.0
+appVersion: 1.0.0

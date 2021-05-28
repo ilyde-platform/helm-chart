@@ -1,0 +1,64 @@
+apiVersion: v2
+name: ilyde
+description: Ilyde platform helm chart for building and manage data science's projects
+type: application
+version: 0.1.0
+appVersion: 0.1.0
+
+keywords:
+  - ilyde
+  - platform
+  - AI
+home: ""
+sources:
+  - ""
+  - ""
+maintainers:
+  - name: tonywilson
+    email: tony.wilson@hopenly.com
+
+dependencies:
+  - name: traefik
+    version: 9.8.1
+    repository: https://helm.traefik.io/traefik
+    condition: traefik.enabled
+
+  - name: minio
+    version: 8.0.0
+    repository: https://helm.min.io/
+    condition: minio.enabled
+
+  - name: mongodb
+    version: 9.3.1
+    repository: https://charts.bitnami.com/bitnami
+    condition: mongodb.enabled
+
+  - name: etcd
+    version: 5.3.0
+    repository: https://charts.bitnami.com/bitnami
+    condition: etcd.enabled
+
+  - name: elasticsearch
+    version: 7.10.1
+    repository:  https://helm.elastic.co
+    condition: elasticsearch.enabled
+
+  - name: fluentd
+    version: 0.1.4
+    repository:  https://fluent.github.io/helm-charts
+    condition: fluentd.enabled
+  
+  - name: postgresql
+    version: 9.8.4
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+
+  - name: mysql
+    version: 8.2.3
+    repository: https://charts.bitnami.com/bitnami
+    condition: mysql.enabled
+    
+   
+    
+  
+

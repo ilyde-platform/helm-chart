@@ -1,0 +1,27 @@
+dependencies:
+- name: traefik
+  repository: https://helm.traefik.io/traefik
+  version: 9.8.1
+- name: minio
+  repository: https://helm.min.io/
+  version: 8.0.0
+- name: mongodb
+  repository: https://charts.bitnami.com/bitnami
+  version: 9.3.1
+- name: etcd
+  repository: https://charts.bitnami.com/bitnami
+  version: 5.3.0
+- name: elasticsearch
+  repository: https://helm.elastic.co
+  version: 7.10.1
+- name: fluentd
+  repository: https://fluent.github.io/helm-charts
+  version: 0.1.4
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 9.8.4
+- name: mysql
+  repository: https://charts.bitnami.com/bitnami
+  version: 8.2.3
+digest: sha256:1cd967c94fc0899faea8d5921b7014c602bb2b3442baf6ae799868f1bc9f38d0
+generated: "2021-03-23T17:07:32.3013397+01:00"

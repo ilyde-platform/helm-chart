@@ -1,0 +1,23 @@
+{{- if .Values.ingress.enabled -}}
+{{- $fullName := include "apis.fullname" . -}}
+{{- $svcPort := .Values.service.port -}}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "apis.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  entryPoints:
+    - {{ .Values.ingress.entryPoint }}
+  routes:
+  - match: {{ .Values.ingress.route }}
+    kind: Rule
+    services:
+    - name: {{ $fullName }}
+      port: {{ $svcPort }}
+      {{- end }}

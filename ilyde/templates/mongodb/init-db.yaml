@@ -1,0 +1,48 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: ilyde-init-db
+data:
+  init-db.js: >-
+    db = db.getSiblingDB('jobs')
+
+    try {
+        var ides = [{
+            "name": "Jupyter",
+            "title": "Jupyter (Python)",
+            "start": "/bin/bash /var/opt/workspaces/jupyter/start",
+            "middlewares": [],
+            "has_relative_path": true
+            },
+            {
+            "name": "JupyterLab",
+            "title": "JupyterLab (Python)",
+            "start": "/bin/bash /var/opt/workspaces/Jupyterlab/start.sh",
+            "middlewares": [],
+            "has_relative_path": true
+            },
+            {
+            "name": "Vscode",
+            "title": "Visual Studio Code",
+            "start": "/bin/bash /var/opt/workspaces/vscode/start",
+            "middlewares": ["ilyde-workspace-replacepathregex"],
+            "has_relative_path": false
+            }
+       ]
+       db.ide.insertMany( ides );
+       var envs = [
+            {
+                "name": "Ilyde Analytics (Python3.7,  R4.0.2)",
+                "image": "ilyde/analytics:py37-r402",
+                "deployment": false
+            },
+            {
+                "name": "Ilyde Deployment (Python3)",
+                "image": "ilyde/deployment:py3",
+                "deployment": true
+            }
+       ]
+       db.environment.insertMany( envs );
+    } catch (e) {
+       print(e);
+    }

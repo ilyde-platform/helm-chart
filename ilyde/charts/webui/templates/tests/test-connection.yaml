@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "webui.fullname" . }}-test-connection"
+  labels:
+    {{- include "webui.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "webui.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never

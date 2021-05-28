@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-cfgs
+data:
+  MINIO_HOST: {{ .Release.Name }}-minio:9000
+  MINIO_ENDPOINT: http://{{ .Release.Name }}-minio:9000
+  JOBS_SERVICES_ENDPOINT: {{ .Release.Name }}-jobs:50051
+  ILYDE_JOB_INITIALIZER_IMAGE_NAME: ilyde/job-initializer:1.0.0-rc4
+  PROJECTS_SERVICES_ENDPOINT: {{ .Release.Name }}-projects:50051
+  DATASETS_SERVICES_ENDPOINT: {{ .Release.Name }}-datasets:50051
+  ELASTICSEARCH_HOST:  elasticsearch-master
+  ETCD_HOST: {{ .Release.Name }}-etcd-headless
+  MLFLOW_TRACKING_URI: http://{{ .Release.Name }}-mlflow:5000
+  MLFLOW_S3_ENDPOINT_URL: http://{{ .Release.Name }}-minio:9000
+  KEYCLOAK_AUTH_ENDPOINT:  http://{{ .Release.Name }}-keycloak:8080
+  MONGO_HOST: {{ .Release.Name }}-mongodb-headless
+  KUBESPAWNER_SERVICES_ENDPOINT: {{ .Release.Name }}-kubespawner:50051
+  MONGO_DATASETS_URL: mongodb+srv://{{ .Release.Name }}-mongodb-headless.{{ .Release.Namespace }}.svc.cluster.local/datasets?authSource=admin&replicaSet=rs0&tls=false&ssl=false
+  MONGO_JOBS_URL: mongodb+srv://{{ .Release.Name }}-mongodb-headless.{{ .Release.Namespace }}.svc.cluster.local/jobs?authSource=admin&replicaSet=rs0&tls=false&ssl=false
+  MONGO_PROJECTS_URL: mongodb+srv://{{ .Release.Name }}-mongodb-headless.{{ .Release.Namespace }}.svc.cluster.local/projects?authSource=admin&replicaSet=rs0&tls=false&ssl=false
+  MLFLOW_BACKEND_URI: mysql+pymysql://{{ .Values.mysql.auth.username }}:{{ .Values.mysql.auth.password }}@{{ .Release.Name }}-mysql-headless:3306/{{ .Values.mysql.auth.database }}
+  MLFLOW_DEFAULT_ARTIFACT_ROOT: s3://{{ .Values.minio.defaultBucket.name }}/
+  KEYCLOAK_DB_DATABASE: {{ .Values.postgresql.postgresqlDatabase }}
+  KEYCLOAK_DB_USER: {{ .Values.postgresql.postgresqlUsername }}
+  KEYCLOAK_DB_PASSWORD: {{ .Values.postgresql.postgresqlPassword }}
+
+
+

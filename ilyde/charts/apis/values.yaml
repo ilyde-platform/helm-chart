@@ -1,0 +1,34 @@
+replicaCount: 1
+image:
+  repository: ilyde/apis
+  pullPolicy: IfNotPresent
+  tag: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}  
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  annotations: {}
+  route: PathPrefix(`/api/v1`)
+  entryPoint: web
+
+resources: {}
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+tolerations: []
+
+affinity: {}
