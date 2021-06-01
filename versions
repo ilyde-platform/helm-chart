@@ -1,0 +1,5 @@
+kops: Version 1.18.2 (git-84495481e4)
+kubernetes: v1.18.14
+kubernetes-dashboard: v2.0.0
+kubernetes-cluster-autoscaler: v1.18.3
+helm: version.BuildInfo{Version:"v3.4.0", GitCommit:"7090a89efc8a18f3d8178bf47d2462450349a004", GitTreeState:"clean", GoVersion:"go1.14.10"}
